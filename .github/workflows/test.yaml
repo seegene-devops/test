@@ -1,0 +1,51 @@
+name: Deploy - DEV
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      registry: ${{ steps.docker-build.outputs.registry }}
+      image: ${{ steps.docker-build.outputs.image-name }}
+      tag: ${{ steps.docker-build.outputs.tag }}
+      image-sg-example-app: ${{ steps.docker-build.outputs.image-sg-example-app }}
+      image-sample: ${{ steps.docker-build.outputs.image-sample }}
+      image-inventory: ${{ steps.docker-build.outputs.image-inventory }}
+      image-product-info: ${{ steps.docker-build.outputs.image-product-info }}
+      image-feasibility: ${{ steps.docker-build.outputs.image-feasibility }}
+    strategy:
+      matrix:
+        app: [sg-example-app, sample, inventory, product-info, feasibility]
+        include:
+          - app: sg-example-app
+            dockerfile: apps/sg-example-app/Dockerfile
+          - app: sample
+            dockerfile: apps/sample/Dockerfile
+          - app: inventory
+            dockerfile: apps/inventory/Dockerfile
+          - app: product-info
+            dockerfile: apps/productInfo/Dockerfile
+          - app: feasibility
+            dockerfile: apps/feasibility/Dockerfile
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build and push Docker image
+        id: docker-build
+        run: |
+          echo "registry=registry" >> $GITHUB_OUTPUT
+          echo "image=${{ matrix.app }}" >> $GITHUB_OUTPUT
+          echo "image-${{ matrix.app }}=${{ matrix.app }}" >> $GITHUB_OUTPUT
+          echo "tag=tag" >> $GITHUB_OUTPUT
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        run: |
+          echo "${{ needs.build.outputs.image}}"
+          echo "--------------------------------"
+          echo "${{ toJSON(needs.build.outputs.*.output_param) }}"
