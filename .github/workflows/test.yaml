@@ -50,20 +50,28 @@ jobs:
         run: |
           outputs='${{ toJSON(needs.build.outputs.*) }}'
           app_objects=$(echo "$outputs" | jq -r '.[] | select(startswith("{\"app\":"))')
-          echo "Parsed app objects"
           apps=$(echo "$app_objects" | jq -r '.app')
-          echo "Parsed apps"
           dockerfiles=$(echo "$app_objects" | jq -r '.dockerfile')
-          echo "Parsed dockerfiles"
           tags=$(echo "$app_objects" | jq -r '.tag')
-          echo "Parsed tags"
           registries=$(echo "$app_objects" | jq -r '.registry')
-          echo "Parsed registries"
-          # Loop through apps with index
-          for i in $(seq 0 $(echo "$apps" | jq -r '. | length - 1')); do
-            app=$(echo "$apps" | jq -r ".[$i]")
-            dockerfile=$(echo "$dockerfiles" | jq -r ".[$i]")
-            tag=$(echo "$tags" | jq -r ".[$i]")
-            registry=$(echo "$registries" | jq -r ".[$i]")
-            echo "Deploying $app with dockerfile $dockerfile, tag $tag, registry $registry"
+
+          # Use readarray to create arrays from the variables
+          readarray -t app_array <<< "$apps"
+          readarray -t dockerfile_array <<< "$dockerfiles"
+          readarray -t tag_array <<< "$tags"
+          readarray -t registry_array <<< "$registries"
+
+          # Loop through arrays using index
+          for i in "${!app_array[@]}"; do
+              app="${app_array[$i]}"
+              dockerfile="${dockerfile_array[$i]}"
+              tag="${tag_array[$i]}"
+              registry="${registry_array[$i]}"
+
+              echo "Processing app: $app"
+              echo "  Dockerfile: $dockerfile"
+              echo "  Tag: $tag"
+              echo "  Registry: $registry"
+
+              # Your deployment logic here
           done
