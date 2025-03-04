@@ -53,3 +53,7 @@ jobs:
           echo "${{ toJSON(needs.build.outputs.*) }}"
           echo "--------------------------------"
           echo "${{ toJSON(needs.build.outputs.*.output_param) }}"
+
+          # Get all outputs and filter image- entries
+          outputs='${{ toJSON(needs.build.outputs.*) }}'
+          echo "$outputs" | jq -r '.[] | select(startswith("image-"))'
