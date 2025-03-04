@@ -48,12 +48,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Deploy
         run: |
-          echo "${{ needs.build.outputs.image}}"
-          echo "${{ needs.build.outputs.image-sample }}"
-          echo "${{ toJSON(needs.build.outputs.*) }}"
-          echo "--------------------------------"
-          echo "${{ toJSON(needs.build.outputs.*.output_param) }}"
-
-          # Get all outputs and filter image- entries
           outputs='${{ toJSON(needs.build.outputs.*) }}'
-          echo "$outputs" | jq -r '.[] | select(startswith("{\"app\":"))'
+          apps=$(echo "$outputs" | jq -r '.[] | select(startswith("{\"app\":"))')
+
+          echo "$apps"
+
+          # Loop through apps
+          for app in $apps; do
+            echo "Deploying $app"
+          done
