@@ -50,11 +50,16 @@ jobs:
         run: |
           outputs='${{ toJSON(needs.build.outputs.*) }}'
           app_objects=$(echo "$outputs" | jq -r '.[] | select(startswith("{\"app\":"))')
+          echo "Parsed app objects"
           apps=$(echo "$app_objects" | jq -r '.app')
+          echo "Parsed apps"
           dockerfiles=$(echo "$app_objects" | jq -r '.dockerfile')
+          echo "Parsed dockerfiles"
           tags=$(echo "$app_objects" | jq -r '.tag')
+          echo "Parsed tags"
           registries=$(echo "$app_objects" | jq -r '.registry')
-
+          echo "Parsed registries"
+          # Loop through apps with index
           for i in $(seq 0 $(echo "$apps" | jq -r '. | length - 1')); do
             app=$(echo "$apps" | jq -r ".[$i]")
             dockerfile=$(echo "$dockerfiles" | jq -r ".[$i]")
