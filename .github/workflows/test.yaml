@@ -55,9 +55,10 @@ jobs:
           tags=$(echo "$app_objects" | jq -r '.tag')
           registries=$(echo "$app_objects" | jq -r '.registry')
 
-          for app in $apps; do
-            dockerfile=$(echo "$dockerfiles" | jq -r ".[] | select(.app == \"$app\")")
-            tag=$(echo "$tags" | jq -r ".[] | select(.app == \"$app\")")
-            registry=$(echo "$registries" | jq -r ".[] | select(.app == \"$app\")")
+          for i in $(seq 0 $(echo "$apps" | jq -r '. | length - 1')); do
+            app=$(echo "$apps" | jq -r ".[$i]")
+            dockerfile=$(echo "$dockerfiles" | jq -r ".[$i]")
+            tag=$(echo "$tags" | jq -r ".[$i]")
+            registry=$(echo "$registries" | jq -r ".[$i]")
             echo "Deploying $app with dockerfile $dockerfile, tag $tag, registry $registry"
           done
