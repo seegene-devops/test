@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "registry=registry" >> $GITHUB_OUTPUT
           echo "image=${{ matrix.app }}" >> $GITHUB_OUTPUT
-          echo "image-${{ matrix.app }}=${{ matrix.app }}" >> $GITHUB_OUTPUT
+          echo "image-${{ matrix.app }}={\"app\": \"${{ matrix.app }}\", \"dockerfile\": \"${{ matrix.dockerfile }}\", \"tag\": \"${{ github.sha }}\", \"registry\": \"registry\"}" >> $GITHUB_OUTPUT
           echo "tag=tag" >> $GITHUB_OUTPUT
 
   deploy:
@@ -56,4 +56,4 @@ jobs:
 
           # Get all outputs and filter image- entries
           outputs='${{ toJSON(needs.build.outputs.*) }}'
-          echo "$outputs" | jq -r '.[] | select(startswith("image-"))'
+          echo "$outputs" | jq -r '.[] | select(startswith("{\"app\":"))'
