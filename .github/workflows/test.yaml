@@ -49,11 +49,15 @@ jobs:
       - name: Deploy
         run: |
           outputs='${{ toJSON(needs.build.outputs.*) }}'
-          apps=$(echo "$outputs" | jq -r '.[] | select(startswith("{\"app\":"))')
+          app_objects=$(echo "$outputs" | jq -r '.[] | select(startswith("{\"app\":"))')
+          apps=$(echo "$app_objects" | jq -r '.app')
+          dockerfiles=$(echo "$app_objects" | jq -r '.dockerfile')
+          tags=$(echo "$app_objects" | jq -r '.tag')
+          registries=$(echo "$app_objects" | jq -r '.registry')
 
-          echo "$apps"
-
-          # Loop through apps
           for app in $apps; do
-            echo "Deploying $app"
+            dockerfile=$(echo "$dockerfiles" | jq -r ".[] | select(.app == \"$app\")")
+            tag=$(echo "$tags" | jq -r ".[] | select(.app == \"$app\")")
+            registry=$(echo "$registries" | jq -r ".[] | select(.app == \"$app\")")
+            echo "Deploying $app with dockerfile $dockerfile, tag $tag, registry $registry"
           done
