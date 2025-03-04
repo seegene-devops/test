@@ -50,6 +50,6 @@ jobs:
         run: |
           echo "${{ needs.build.outputs.image}}"
           echo "${{ needs.build.outputs.image-sample }}"
-          echo "${{ needs.build.outputs.image-* }}"
+          echo "${{ needs.build.outputs.* }}"
           echo "--------------------------------"
           echo "${{ toJSON(needs.build.outputs.*.output_param) }}"
