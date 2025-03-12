@@ -1,0 +1,22 @@
+name: Update PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+jobs:
+  update_body:
+    runs-on: ubuntu-latest
+    if: !startsWith(github.event.pull_request.body, '라이브 프리뷰: ')
+    steps:
+      - name: Update Pull Request Body
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `라이브 프리뷰: https://blog${{ github.event.pull_request.number }}.dev.sgarch.net\n\n${{ github.event.pull_request.body }}`;
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              body: body
+            });
